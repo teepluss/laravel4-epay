@@ -1,0 +1,28 @@
+{
+    "name": "teepluss/epay",
+    "description": "Larave epay is payment gateway adapter.",
+    "keywords": ["laravel", "laravel4", "gateway", "paypal"],
+    "homepage": "https://github.com/teepluss/laravel4-epay",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Teepluss",
+            "email": "admin@laravel.in.th"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.0.x"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations",
+            "src/Teepluss/Epay/Exceptions.php"
+        ],
+        "psr-0": {
+            "Teepluss\\Epay": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
