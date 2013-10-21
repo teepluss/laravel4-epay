@@ -37,7 +37,62 @@ API also ships with a facade which provides the static syntax for creating colle
 
 ## Usage
 
-...... is comming soon ......
+Generate payment form.
+~~~php
+$adapter = Epay::factory('paypal');
+
+$adapter->setSandboxMode(true);
+
+$adapter->setSuccessUrl('http://www.domain/foreground/success')
+        ->setCancelUrl('http://www.domain/foreground/cancel')
+        ->setBackendUrl('http://www.domain/background/invoice/00001');
+
+
+$adapter->setMerchantAccount('demo@gmail.com');
+
+$adapter->setLanguage('TH')
+        ->setCurrency('THB');
+
+$adapter->setInvoice(00001)
+        ->setPurpose('Buy a beer.')
+        ->setAmount(100);
+
+$adapter->setRemark('Short note');
+
+$generated = $adapter->render();
+
+var_dump($generated);
+~~~
+
+Checking foregound process.
+~~~php
+$adapter = Epay::factory('paypal');
+
+$adapter->setSandboxMode(true);
+
+$adapter->setMerchantAccount('demo@gmail.com');
+
+$adapter->setInvoice(00001);
+
+$result = $adapter->getFrontendResult();
+
+var_dump($result);
+~~~
+
+Checking background process (IPN)
+~~~php
+$adapter = Epay::factory('paypal');
+
+$adapter->setSandboxMode(true);
+
+$adapter->setMerchantAccount('demo@gmail.com');
+
+$adapter->setInvoice(00001);
+
+$result = $adapter->getBackendResult();
+
+var_dump($result);
+~~~
 
 ## Support or Contact
 
