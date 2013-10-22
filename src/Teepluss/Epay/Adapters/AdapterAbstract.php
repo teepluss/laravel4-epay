@@ -1,79 +1,111 @@
 <?php namespace Teepluss\Epay\Adapters;
 
+use Teepluss\Epay\EpayException;
+
 abstract class AdapterAbstract implements AdapterInterface {
 
 	/**
-     * @var true|false
-     */
+	 * Sandbox mode
+	 *
+	 * @var boolean
+	 */
 	protected $_sandbox = false;
 
 	/**
-     * @var interface language
-     */
+	 * Gateway language
+	 *
+	 * @var string
+	 */
 	protected $_language = "EN";
 
 	/**
-     * @var currency
-     */
+	 * Gateway currency
+	 *
+	 * @var string
+	 */
 	protected $_currency = "THB";
 
 	/**
-     * @var API gateway URL
-     */
+	 * Gateway endpoint URL
+	 *
+	 * @var string
+	 */
 	protected $_gatewayUrl;
 
 	/**
-     * @var Success URL
-     */
+	 * Success response URL
+	 *
+	 * @var string
+	 */
 	protected $_successUrl;
 
 	/**
-     * @var Cancel URL
-     */
+	 * Cancel response URL
+	 *
+	 * @var string
+	 */
 	protected $_cancelUrl;
 
 	/**
-	 * @var Fail URL
+	 * Fail response URL
+	 *
+	 * @var string
 	 */
 	protected $_failUrl;
 
 	/**
-     * @var Background process URL
-     */
+	 * Background process URL
+	 *
+	 * @var string
+	 */
 	protected $_backendUrl;
 
 	/**
-     * @var Gateway account Account
-     */
+	 * Gateway account (email)
+	 *
+	 * @var string
+	 */
 	protected $_merchantAccount;
 
 	/**
-     * @var Invoice ID
-     */
+	 * Invoice
+	 *
+	 * @var mixed
+	 */
 	protected $_invoice;
 
 	/**
-     * @var Payment purpose
-     */
+	 * Payment description.
+	 *
+	 * @var string
+	 */
 	protected $_purpose;
 
 	/**
-     * @var Final amount paid
-     */
+	 * Payment amount
+	 *
+	 * @var integer
+	 */
 	protected $_amount;
 
 	/**
-	 * @var Remark, Note
+	 * Payment note
+	 *
+	 * @var string
 	 */
 	protected $_remark;
 
 	/**
-	 * @var Client IP Address
+	 * Client IP
+	 *
+	 * @var string
 	 */
 	protected $_client_ip_address;
 
 	/**
-	 * @var Gateway status returned mapping
+	 * Gateway status
+	 *
+	 * @var array
 	 */
 	protected $_statusReturned = array(
 		'success' => array(
@@ -91,11 +123,9 @@ abstract class AdapterAbstract implements AdapterInterface {
 	);
 
 	/**
-	 * Construct the adapter payment
+	 * Construct the adapter payment.
 	 *
-	 * @access public
-	 * @param  array $params (option)
-	 * @return void
+	 * @param array $params
 	 */
 	public function __construct($params=array())
 	{
@@ -103,10 +133,9 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Initialize options
+	 * Option intialize.
 	 *
-	 * @access public
-	 * @param  arary (option)
+	 * @param  array $params
 	 * @return void
 	 */
 	public function initialize($params)
@@ -116,10 +145,13 @@ abstract class AdapterAbstract implements AdapterInterface {
 			foreach ($params as $key => $val)
 			{
 				$method = "set".ucfirst($key);
-				if (method_exists($this, $method)) {
+
+				if (method_exists($this, $method))
+				{
 					$this->$method($val);
 				}
-				else {
+				else
+				{
 					$this->setAny($key, $val);
 				}
 			}
@@ -127,41 +159,44 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set gateway account
-	 * Normally account is email
+	 * Merchant account.
 	 *
-	 * @access public
-	 * @param  mixed string|array
-	 * @return object class (chaining)
+	 * @param  string
+	 * @return object
 	 */
 	public function setMerchantAccount($val)
 	{
-		// some adpater you need to pass parameters more than email
+		// Some adpater you need to pass parameters more than email.
 		if (is_array($val))
 		{
 			$opts = $val;
+
 			foreach ($opts as $key => $val)
 			{
 				$method = 'set'.ucfirst($key);
-				if (method_exists($this, $method)) {
+
+				if (method_exists($this, $method))
+				{
 					$this->$method($val);
 				}
-				else {
-					throw new Payment_Exception('Method "'.$key.'" is not match for the adapter.');
+				else
+				{
+					throw new EpayException('Method "'.$key.'" is not match for the adapter.');
 				}
 			}
+
 			return $this;
 		}
 
-		// normally this is an email
+		// Normally this is an email.
 		$this->_merchantAccount = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get gateway account
+	 * Get merchant account.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getMerchantAccount()
@@ -170,22 +205,21 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set gateway interface language
+	 * Gateway language interface.
 	 *
-	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setLanguage($val)
 	{
 		$this->_language = strtoupper($val);
+
 		return $this;
 	}
 
 	/**
-	 * Get language
+	 * Get gateway language interface.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getLanguage()
@@ -194,22 +228,21 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set payment currency
+	 * Set payment currency.
 	 *
-	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setCurrency($val)
 	{
 		$this->_currency = strtoupper($val);
+
 		return $this;
 	}
 
 	/**
-	 * Get payment currency
+	 * Get payment currency.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getCurrency()
@@ -218,22 +251,21 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set unique invoice ID
+	 * Set unique invoice ID.
 	 *
-	 * @access public
 	 * @param  string
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setInvoice($val)
 	{
 		$this->_invoice = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get invoice ID
+	 * Get invoice ID.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getInvoice()
@@ -244,20 +276,19 @@ abstract class AdapterAbstract implements AdapterInterface {
 	/**
 	 * Set purpose of payment
 	 *
-	 * @access public
-	 * @param  string (just a message)
-	 * @return object class (chaining)
+	 * @param  string
+	 * @return object
 	 */
 	public function setPurpose($val)
 	{
 		$this->_purpose = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get purpose of payment
+	 * Get purpose of payment.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getPurpose()
@@ -266,25 +297,26 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set amount payment
+	 * Set payment amount.
 	 *
-	 * @access public
-	 * @param  integer (Money)
-	 * @return object class (chaining)
+	 * @param  integer
+	 * @return object
 	 */
 	public function setAmount($val)
 	{
-		if (is_numeric($val)) {
+		if (is_numeric($val))
+		{
 			$this->_amount = $val;
+
 			return $this;
 		}
-		throw new Payment_Exception('Amount must be integer.');
+
+		throw new EpayException('Amount must be integer.');
 	}
 
 	/**
-	 * Get amount
+	 * Get payment amount.
 	 *
-	 * @access public
 	 * @return integer
 	 */
 	public function getAmount()
@@ -293,22 +325,21 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set remark or note
+	 * Set payment note.
 	 *
-	 * @access public
 	 * @param  string
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setRemark($val)
 	{
 		$this->_remark = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get remark
+	 * Get payment note.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getRemark()
@@ -319,57 +350,60 @@ abstract class AdapterAbstract implements AdapterInterface {
 	/**
 	 * Set client IP address
 	 *
-	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setClientIpAddress($val)
 	{
 		$this->_client_ip_address = $val;
+
 		return $this;
 	}
 
 	/**
 	 * Get client IP address
 	 *
-	 * @access public
-	 * @return string IP
+	 * @return string
 	 */
 	public function getClientIpAddress()
 	{
-		if (!$this->_client_ip_address)
+		if ( ! $this->_client_ip_address)
 		{
-			if (!empty($_SERVER["HTTP_CLIENT_IP"])) {
+			if (!empty($_SERVER["HTTP_CLIENT_IP"]))
+			{
  				$ip = $_SERVER["HTTP_CLIENT_IP"];
 			}
-			elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
+			elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"]))
+			{
  				$ip = $_SERVER["HTTP_X_FORWARDED_FOR"];
 			}
-			else {
+			else
+			{
 				$ip = $_SERVER["REMOTE_ADDR"];
 			}
+
 			$this->_client_ip_address = $ip;
 		}
+
 		return $this->_client_ip_address;
 	}
 
 	/**
-	 * Set success front URL
+	 * Set success front URL.
 	 *
-	 * @access public
-	 * @param  string (URL)
-	 * @return object class (chaining)
+	 * @param  string
+	 * @return object
 	 */
 	public function setSuccessUrl($val)
 	{
 		$this->_successUrl = $this->_addQueryState($val, 'success');
+
 		return $this;
 	}
 
 	/**
-	 * Get success URL
+	 * Get success front URL.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getSuccessUrl()
@@ -378,24 +412,24 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set cancel front URL
-	 * Status cancel from gateway
-	 * Support for some adapter
+	 * Set cancel front URL.
 	 *
-	 * @access public
-	 * @param  string (URL)
-	 * @return object class (chaining)
+	 * Status cancel from gateway,
+	 * this is not support for all gateways.
+	 *
+	 * @param  string
+	 * @return object
 	 */
 	public function setCancelUrl($val)
 	{
 		$this->_cancelUrl = $this->_addQueryState($val, 'cancel');
+
 		return $this;
 	}
 
 	/**
-	 * Get cancel URL
+	 * Get cancel front URL.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getCancelUrl()
@@ -404,24 +438,24 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set fail front URL
-	 * Status reject from gateway
-	 * This method does not support for many gateway
+	 * Set fail front URL.
 	 *
-	 * @access public
-	 * @param  string (URL)
-	 * @return object class (chaining)
+	 * Status fail from gateway,
+	 * this is not support for all gateways.
+	 *
+	 * @param  string
+	 * @return object
 	 */
 	public function setFailUrl($val)
 	{
 		$this->_failUrl = $this->_addQueryState($val, 'fail');
+
 		return $this;
 	}
 
 	/**
-	 * Get fail URL
+	 * Get fail front URL
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getFailUrl()
@@ -430,23 +464,23 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set backend
+	 * Set backend process URL.
+	 *
 	 * Background process server to server
 	 *
-	 * @access public
-	 * @param  string (URL)
-	 * @return object class (chaining)
+	 * @param  string
+	 * @return object
 	 */
 	public function setBackendUrl($val)
 	{
 		$this->_backendUrl = $this->_addQueryState($val, 'backend');
+
 		return $this;
 	}
 
 	/**
-	 * Get backend URL
+	 * Get backend process URL.
 	 *
-	 * @access public
 	 * @return string
 	 */
 	public function getBackendUrl()
@@ -455,143 +489,152 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Set any var
+	 * Set anything else that gateway allow.
 	 *
-	 * @access public
 	 * @param  string $name
-	 * @param  mixed $val
-	 * @return object class (chaining)
+	 * @param  mixed  $val
+	 * @return object
 	 */
 	public function setAny($name, $val)
 	{
-		$private_name = "_".(string)$name;
-		$this->{$private_name} = $val;
+		$variable = '_'.(string) $name;
+
+		$this->$variable = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get any var
+	 * Get anything else that gateway allow.
 	 *
-	 * @access public
 	 * @param  string $name
 	 * @return mixed
 	 */
 	public function getAny($name)
 	{
-		$private_name = "_".(string)$name;
-		if ($this->{$private_name}) {
-			return $this->{$name};
-		}
-		return false;
+		$variable = '_'.(string) $name;
+
+		return isset($this->$variable) ? $this->$variable : null;
 	}
 
 	/**
 	 * State of success payment returned.
 	 *
-	 * @access public
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isSuccessPosted()
 	{
-		if (array_key_exists('state', $_GET)) {
+		if (array_key_exists('state', $_GET))
+		{
 			return (strcmp($_GET['state'], 'success') == 0);
 		}
+
 		return false;
 	}
 
 	/**
 	 * State of canceled payment returned.
 	 *
-	 * @access public
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isCancelPosted()
 	{
-		if (array_key_exists('state', $_GET)) {
+		if (array_key_exists('state', $_GET))
+		{
 			return (strcmp($_GET['state'], 'cancel') == 0);
 		}
+
 		return false;
 	}
 
 	/**
 	 * State of rejected payment returned.
+	 *
 	 * This state does not support for many gateway
 	 *
-	 * @access public
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isFailPosted()
 	{
-		if (array_key_exists('state', $_GET)) {
+		if (array_key_exists('state', $_GET))
+		{
 			return (strcmp($_GET['state'], 'fail') == 0);
 		}
+
 		return false;
 	}
 
 	/**
 	 * State of backend post to server.
 	 *
-	 * @access public
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isBackendPosted()
 	{
-		if (array_key_exists('state', $_GET) && count($_POST) > 0) {
+		if (array_key_exists('state', $_GET) and count($_POST))
+		{
 			return (strcmp($_GET['state'], 'backend') == 0);
 		}
+
+		return false;
 	}
 
 	/**
-	 * Add state to query URL
+	 * Add state to query URL.
 	 *
-	 * @access private
 	 * @param  string $url
 	 * @param  string $state
 	 * @return string
 	 */
 	private function _addQueryState($url, $state)
 	{
-		if (strpos($url, '?')) {
+		if (strpos($url, '?'))
+		{
 			$url .= "&state=".$state;
 		}
-		else {
+		else
+		{
 			$url .= "?state=".$state;
 		}
+
 		return $url;
 	}
 
 	/**
 	 * Building HTML Form
-	 * Adapter use this to building a hidden form
 	 *
-	 * @access protected
+	 * Adapter use this method to building a hidden form.
+	 *
 	 * @param  array
 	 * @return string HTML
 	 */
-	protected function _makeFormPayment($attrs=array(), $method = 'POST')
+	protected function _makeFormPayment($attrs = array(), $method = 'POST')
 	{
 		$hiddens = array();
-		foreach ($attrs as $attr_key => $attr_val) {
+
+		foreach ($attrs as $attr_key => $attr_val)
+		{
 			$hiddens[] = '<input type="hidden" name="'.$attr_key.'" value="'.$attr_val.'" />' . "\n";
 		}
+
 		$form = '
 			<form method="'.$method.'" action="'.$this->_gatewayUrl.'" id="form-gateway">
 				'.implode('', $hiddens).'
 			</form>
 		';
+
 		return $form;
 	}
 
 	/**
-	 * Make POST request via CURL
+	 * Make POST request via CURL.
 	 *
-	 * @access protected
 	 * @param  string $url
 	 * @param  array
 	 * @param  array
 	 * @return array
 	 */
-	protected function _makeRequest($url, $data=array(), $curl_opts_extends=array())
+	protected function _makeRequest($url, $data = array(), $curl_opts_extends = array())
 	{
 		$curl = curl_init();
 		$data = http_build_query($data);
@@ -605,15 +648,21 @@ abstract class AdapterAbstract implements AdapterInterface {
 		    CURLOPT_SSL_VERIFYPEER => false
 		);
 
-		// override or extend curl options
-		if (count($curl_opts_extends) > 0) foreach ($curl_opts_extends as $key => $val) {
-			$curl_opts[$key] = $val;
+		// Override or extend curl options
+		if (count($curl_opts_extends) > 0)
+		{
+			foreach ($curl_opts_extends as $key => $val)
+			{
+				$curl_opts[$key] = $val;
+			}
 		}
+
 		curl_setopt_array($curl, $curl_opts);
 
-		// responded
+		// Response returned.
 		$response = curl_exec($curl);
 		$status   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
 		curl_close($curl);
 
 		return array(
@@ -623,10 +672,10 @@ abstract class AdapterAbstract implements AdapterInterface {
 	}
 
 	/**
-	 * Map status returned from all gateway
+	 * Map status returned from all gateway.
+	 *
 	 * Because too much format return from gateway
 	 *
-	 * @access protected
 	 * @param  string
 	 * @return string
 	 */
@@ -634,28 +683,28 @@ abstract class AdapterAbstract implements AdapterInterface {
 	{
 		$keyword = strtolower($keyword);
 		$all_status = $this->_statusReturned;
+
 		foreach ($all_status as $status => $group)
 		{
-			if (in_array($keyword, $group)) {
+			if (in_array($keyword, $group))
+			{
 				return $status;
 			}
 		}
-		return "other";
+
+		return 'other';
 	}
 
 	/**
-	 * Change integer to real number format
+	 * Change integer to real number format.
 	 *
-	 * @access protected
-	 * @param  integer
-	 * @param  integer $decimals (default: 2)
+	 * @param  integer $int
+	 * @param  integer $decimals
 	 * @return float
 	 */
-	protected function _decimals($int, $decimals=2)
+	protected function _decimals($int, $decimals = 2)
 	{
 		return number_format($int, $decimals, '.', '');
 	}
 
 }
-
-?>

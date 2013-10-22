@@ -1,9 +1,11 @@
 <?php namespace Teepluss\Epay\Adapters;
 
+use Teepluss\Epay\EpayException;
+
 class Bbl extends AdapterAbstract {
 
 	/**
-	 * Define Gateway name
+	 * Gateway name.
 	 */
 	const GATEWAY = "Bbl";
 
@@ -102,33 +104,36 @@ class Bbl extends AdapterAbstract {
 	);
 
 	/**
-	 * Construct the payment adapter
+	 * Construct the payment adapter.
 	 *
 	 * @access public
 	 * @param  array $params (default: array())
 	 * @return void
 	 */
-	public function __construct($params=array())
+	public function __construct($params = array())
 	{
 		parent::__construct($params);
 	}
 
 	/**
-	 * Set to enable sandbox mode
+	 * Set to enable sandbox mode.
+	 *
 	 * [NOTICE] Bbl doesn't implement sandbox yet!
 	 *
 	 * @access public
 	 * @param  bool
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setSandboxMode($val)
 	{
 		$this->_sandbox = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get sandbox enable
+	 * Get sandbox enable.
+	 *
 	 * [NOTICE] Bbl doesn't implement sandbox yet!
 	 *
 	 * @access public
@@ -140,16 +145,18 @@ class Bbl extends AdapterAbstract {
 	}
 
 	/**
-	 * Set gateway merchant
+	 * Set gateway merchant.
+	 *
 	 * Kbank using merchant instead of email
 	 *
 	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setMerchantId($val)
 	{
 		$this->_merchantId = $val;
+
 		return $this;
 	}
 
@@ -165,21 +172,23 @@ class Bbl extends AdapterAbstract {
 	}
 
 	/**
-	 * Set gateway username
+	 * Set gateway username.
+	 *
 	 * API require username to access logs
 	 *
 	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setUsername($val)
 	{
 		$this->_username = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get gateway username
+	 * Get gateway username.
 	 *
 	 * @access public
 	 * @return string
@@ -190,21 +199,23 @@ class Bbl extends AdapterAbstract {
 	}
 
 	/**
-	 * Set gateway password
+	 * Set gateway password.
+	 *
 	 * API require password to access
 	 *
 	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setPassword($val)
 	{
 		$this->_password = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get gateway username
+	 * Get gateway username.
 	 *
 	 * @access public
 	 * @return string
@@ -215,23 +226,26 @@ class Bbl extends AdapterAbstract {
 	}
 
 	/**
-	 * Set payment method
+	 * Set payment method.
 	 *
 	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setMethod($val)
 	{
 		$val = strtoupper($val);
-		if (array_key_exists($val, $this->_method_maps)) {
+
+		if (array_key_exists($val, $this->_method_maps))
+		{
 			$this->_method = $val;
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Get payment method
+	 * Get payment method.
 	 *
 	 * @access public
 	 * @return string
@@ -242,7 +256,8 @@ class Bbl extends AdapterAbstract {
 	}
 
 	/**
-	 * Get invoice return from gateway feed data
+	 * Get invoice return from gateway feed data.
+	 *
 	 * This invoice return from gateway, so don't need set method
 	 *
 	 * @access public
@@ -250,14 +265,17 @@ class Bbl extends AdapterAbstract {
 	 */
 	public function getGatewayInvoice()
 	{
-		if ($this->isBackendPosted()) {
+		if ($this->isBackendPosted())
+		{
 			return $_POST['Ref'];
 		}
-		throw new Payment_Exception('Gateway invoice return from backend posted only.');
+
+		throw new EpayException('Gateway invoice return from backend posted only.');
 	}
 
 	/**
 	 * State of backend post to server.
+	 *
 	 * override from abstract
 	 *
 	 * @access public
@@ -269,7 +287,8 @@ class Bbl extends AdapterAbstract {
 	}
 
 	/**
-	 * Build array data and mapping from API
+	 * Build array data and mapping from API.
+	 *
 	 * [NOTE] Bbl cannot set feed data URL,
 	 * so you have to contact the bank to add this trust URL
 	 *
@@ -299,10 +318,10 @@ class Bbl extends AdapterAbstract {
 			'templateId' => "1",
 			'prefix'     => $this->_prefix
 		);
-		$params = array_merge($pass_parameters, $extends);
-		$build_data = array_merge($this->_defaults_params, $params);
 
-		print_r($build_data ); exit;
+		$params = array_merge($pass_parameters, $extends);
+
+		$build_data = array_merge($this->_defaults_params, $params);
 
 		return $build_data;
 	}
@@ -318,6 +337,7 @@ class Bbl extends AdapterAbstract {
 	{
 		// make webpage language
 		$data = $this->build($attrs);
+
 		return $this->_makeFormPayment($data);
 	}
 
@@ -347,8 +367,10 @@ class Bbl extends AdapterAbstract {
 					'dump'     => serialize($postdata)
 				)
 			);
+
 			return $result;
 		}
+
 		return false;
 	}
 
@@ -366,11 +388,13 @@ class Bbl extends AdapterAbstract {
 		if (isset($_POST) && count($_POST) > 0)
 		{
 			$postdata = $_POST;
+
 			if (array_key_exists('successcode', $postdata))
 			{
 				$statusResult = ($postdata['successcode'] == 0) ? "success" : "pending";
 				$invoice = $postdata['Ref'];
 				$amount = $this->_decimals($postdata['Amt']);
+
 				$result = array(
 					'status' => true,
 					'data' => array(
@@ -382,6 +406,7 @@ class Bbl extends AdapterAbstract {
 						'dump'     => serialize($postdata)
 					)
 				);
+
 				return $result;
 			}
 		}
@@ -390,6 +415,7 @@ class Bbl extends AdapterAbstract {
 			'status' => false,
 			'msg'    => "Can not get data feed."
 		);
+
 		return $result;
 	}
 
@@ -415,12 +441,14 @@ class Bbl extends AdapterAbstract {
 		$params = array_merge($defaults, $params);
 
 		$response = $this->_makeRequest($this->_checkUrl, $params);
+
 		if ($response['status'])
 		{
-			$xmlstr = new SimpleXMLElement($response['response']);
+			$xmlstr = new \SimpleXMLElement($response['response']);
 			$record = $xmlstr->record;
 
 			$statusResult = ($record->orderStatus == 'Accepted') ? 'success' : 'pending';
+
 			$result = array(
 				'status' => true,
 				'data'   => array(
@@ -430,6 +458,7 @@ class Bbl extends AdapterAbstract {
 					'amount'   => (string)$record->amt
 				)
 			);
+
 			return $result;
 		}
 
@@ -437,9 +466,8 @@ class Bbl extends AdapterAbstract {
 			'status' => false,
 			'msg'    => 'Can not get data feed.'
 		);
+
 		return $result;
 	}
 
 }
-
-?>

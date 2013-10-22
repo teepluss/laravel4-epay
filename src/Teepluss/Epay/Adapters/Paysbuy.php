@@ -1,5 +1,7 @@
 <?php namespace Teepluss\Epay\Adapters;
 
+use Teepluss\Epay\EpayException;
+
 class Paysbuy extends AdapterAbstract {
 
 	/**
@@ -81,7 +83,7 @@ class Paysbuy extends AdapterAbstract {
 	);
 
 	/**
-	 * Construct the payment adapter
+	 * Construct the payment adapter.
 	 *
 	 * @access public
 	 * @param  array $params (default: array())
@@ -93,23 +95,26 @@ class Paysbuy extends AdapterAbstract {
 	}
 
 	/**
-	 * Set to enable sandbox mode
+	 * Set to enable sandbox mode.
 	 *
 	 * @access public
 	 * @param  bool
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setSandboxMode($val)
 	{
 		$this->_sandbox = $val;
-		if ($val == true) {
+
+		if ($val == true)
+		{
 			$this->_gatewayUrl = str_replace('www.', 'demo.', $this->_gatewayUrl);
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Get sandbox enable
+	 * Get sandbox enable.
 	 *
 	 * @access public
 	 * @return bool
@@ -120,22 +125,24 @@ class Paysbuy extends AdapterAbstract {
 	}
 
 	/**
-	 * Set payment method
+	 * Set payment method.
 	 *
 	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setMethod($val)
 	{
-		if (array_key_exists($val, $this->_method_maps)) {
+		if (array_key_exists($val, $this->_method_maps))
+		{
 			$this->_method = $val;
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Get payment method
+	 * Get payment method.
 	 *
 	 * @access public
 	 * @return string
@@ -146,20 +153,21 @@ class Paysbuy extends AdapterAbstract {
 	}
 
 	/**
-	 * Set force payment method
+	 * Set force payment method.
 	 *
 	 * @access public
 	 * @param  string $val
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setForceMethod($val)
 	{
 		$this->_forceMethod = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get force payment method
+	 * Get force payment method.
 	 *
 	 * @access public
 	 * @return string
@@ -170,7 +178,8 @@ class Paysbuy extends AdapterAbstract {
 	}
 
 	/**
-	 * Get invoice return from gateway feed data
+	 * Get invoice return from gateway feed data.
+	 *
 	 * This invoice return from gateway, so don't need set method
 	 *
 	 * @access public
@@ -178,14 +187,17 @@ class Paysbuy extends AdapterAbstract {
 	 */
 	public function getGatewayInvoice()
 	{
-		if (parent::isBackendPosted()) {
+		if (parent::isBackendPosted())
+		{
 			return substr($_POST['result'], 2);
 		}
-		throw new Payment_Exception('Gateway invoice return from backend posted only.');
+
+		throw new EpayException('Gateway invoice return from backend posted only.');
 	}
 
 	/**
 	 * State of success payment returned.
+	 *
 	 * override from abstract
 	 *
 	 * @access public
@@ -195,12 +207,14 @@ class Paysbuy extends AdapterAbstract {
 	{
 		if (parent::isSuccessPosted())
 		{
-			if (isset($_POST) && array_key_exists('result', $_POST))
+			if (isset($_POST) and array_key_exists('result', $_POST))
 			{
 				$statusResult = substr($_POST['result'], 0, 2);
+
 				return (strcmp($statusResult, 99) != 0);
 			}
 		}
+
 		return false;
 	}
 
@@ -215,17 +229,19 @@ class Paysbuy extends AdapterAbstract {
 	{
 		if (parent::isSuccessPosted())
 		{
-			if (isset($_POST) && array_key_exists('result', $_POST))
+			if (isset($_POST) and array_key_exists('result', $_POST))
 			{
 				$statusResult = substr($_POST['result'], 0, 2);
-				return ((strcmp($statusResult, 99) == 0) || $statusResult == '');
+
+				return ((strcmp($statusResult, 99) == 0) or $statusResult == '');
 			}
 		}
+
 		return false;
 	}
 
 	/**
-	 * Build array data and mapping from API
+	 * Build array data and mapping from API.
 	 *
 	 * @access public
 	 * @param  array $extends (default: array())
@@ -246,11 +262,12 @@ class Paysbuy extends AdapterAbstract {
 		);
 		$params = array_merge($pass_parameters, $extends);
 		$build_data = array_merge($this->_defaults_params, $params);
+
 		return $build_data;
 	}
 
 	/**
-	 * Render from data with hidden fields
+	 * Render from data with hidden fields.
 	 *
 	 * @access public
 	 * @param  array $attrs (default: array())
@@ -267,21 +284,14 @@ class Paysbuy extends AdapterAbstract {
 
 		$this->_gatewayUrl .= "?".$query;
 
-		//echo $this->_gatewayUrl; exit(0);
 		$data = $this->build($attrs);
+
 		return $this->_makeFormPayment($data);
 	}
 
 	/**
-	 * Get a post back result from API gateway
-	 * POST data from API
-	 * Only Paysbuy we re-check transaction
+	 * Get a post back result from API gateway.
 	 *
-	 * @access public
-	 * @return array (POST)
-	 */
-	/**
-	 * Get a post back result from API gateway
 	 * POST data from API
 	 * Only Paysbuy we re-check transaction
 	 *
@@ -290,9 +300,11 @@ class Paysbuy extends AdapterAbstract {
 	 */
 	public function getFrontendResult()
 	{
-		if (count($_POST) == 0 || !array_key_exists('apCode', $_POST)) {
+		if (count($_POST) == 0 or ! array_key_exists('apCode', $_POST))
+		{
 			return false;
 		}
+
 		$postdata = $_POST;
 
 		$status = substr($postdata['result'], 0, 2);
@@ -312,11 +324,13 @@ class Paysbuy extends AdapterAbstract {
 				'dump'     => serialize($postdata)
 			)
 		);
+
 		return $result;
 	}
 
 	/**
 	 * Get data posted to background process.
+	 *
 	 * Sandbox is not available to use this, because have no API
 	 *
 	 * @access public
@@ -326,13 +340,16 @@ class Paysbuy extends AdapterAbstract {
 	{
 		// paysbuy sandbox mode is fucking, so they don't have a simulate API to check invoice
 		// anyway we can still use get fronend method instead.
-		if ($this->_sandbox == true) {
+		if ($this->_sandbox == true)
+		{
 			return $this->getFrontendResult();
 		}
 
-		if (count($_POST) == 0 || !array_key_exists('apCode', $_POST)) {
+		if (count($_POST) == 0 or ! array_key_exists('apCode', $_POST))
+		{
 			return false;
 		}
+
 		$postdata = $_POST;
 
 		// invoice from response
@@ -341,7 +358,8 @@ class Paysbuy extends AdapterAbstract {
 		// email to look up
 		$merchantEmail = $this->_merchantAccount;
 
-		try {
+		try
+		{
 			$params = array(
 				'merchantEmail' => $merchantEmail,
 				'invoiceNo'     => $invoice,
@@ -374,15 +392,15 @@ class Paysbuy extends AdapterAbstract {
 				)
 			);
 		}
-		catch (Exception $e) {
+		catch (\Exception $e)
+		{
 			$result = array(
 				'status' => false,
 				'msg'    => $e->getMessage()
 			);
 		}
+
 		return $result;
 	}
 
 }
-
-?>

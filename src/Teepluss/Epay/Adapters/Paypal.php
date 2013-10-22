@@ -1,5 +1,7 @@
 <?php namespace Teepluss\Epay\Adapters;
 
+use Teepluss\Epay\EpayException;
+
 class Paypal extends AdapterAbstract {
 
 	/**
@@ -63,7 +65,7 @@ class Paypal extends AdapterAbstract {
 	 * @param  array $params (default: array())
 	 * @return void
 	 */
-	public function __construct($params=array())
+	public function __construct($params = array())
 	{
 		parent::__construct($params);
 	}
@@ -73,14 +75,17 @@ class Paypal extends AdapterAbstract {
 	 *
 	 * @access public
 	 * @param  bool
-	 * @return object class (chaining)
+	 * @return object
 	 */
 	public function setSandboxMode($val)
 	{
 		$this->_sandbox = $val;
-		if ($val == true) {
+
+		if ($val == true)
+		{
 			$this->_gatewayUrl = str_replace('www.', 'www.sandbox.', $this->_gatewayUrl);
 		}
+
 		return $this;
 	}
 
@@ -96,7 +101,8 @@ class Paypal extends AdapterAbstract {
 	}
 
 	/**
-	 * Get invoice return from gateway feed data
+	 * Get invoice return from gateway feed data.
+	 *
 	 * This invoice return from gateway, so don't need set method
 	 *
 	 * @access public
@@ -104,20 +110,22 @@ class Paypal extends AdapterAbstract {
 	 */
 	public function getGatewayInvoice()
 	{
-		if (parent::isBackendPosted()) {
+		if (parent::isBackendPosted())
+		{
 			return $_POST['invoice'];
 		}
-		throw new Payment_Exception('Gateway invoice return from backend posted only.');
+
+		throw new EpayException('Gateway invoice return from backend posted only.');
 	}
 
 	/**
-	 * Build array data and mapping from API
+	 * Build array data and mapping from API.
 	 *
 	 * @access public
 	 * @param  array $extends (default: array())
 	 * @return array
 	 */
-	public function build($extends=array())
+	public function build($extends = array())
 	{
 		$pass_parameters = array(
 			'business'      => $this->_merchantAccount,
@@ -131,7 +139,8 @@ class Paypal extends AdapterAbstract {
 			'lc'            => $this->_language_maps[$this->_language]
 		);
 
-		if ($this->_remark) {
+		if ($this->_remark)
+		{
 			$extends = array_merge($extends, array(
 				'custom' => $this->_remark
 			));
@@ -139,23 +148,27 @@ class Paypal extends AdapterAbstract {
 
 		$params = array_merge($pass_parameters, $extends);
 		$build_data = array_merge($this->_defaults_params, $params);
+
 		return $build_data;
 	}
 
 	/**
-	 * Render from data with hidden fields
+	 * Render from data with hidden fields.
 	 *
 	 * @access public
 	 * @param  array $attrs (default: array())
 	 * @return string HTML
 	 */
-	public function render($attrs=array())	{
+	public function render($attrs = array())
+	{
 		$data = $this->build($attrs);
+
 		return $this->_makeFormPayment($data);
 	}
 
 	/**
-	 * Get a post back result from API gateway
+	 * Get a post back result from API gateway.
+	 *
 	 * POST data from API
 	 *
 	 * @access public
@@ -163,9 +176,11 @@ class Paypal extends AdapterAbstract {
 	 */
 	public function getFrontendResult()
 	{
-		if (count($_POST) == 0 || !array_key_exists('invoice', $_POST)) {
+		if (count($_POST) == 0 or ! array_key_exists('invoice', $_POST))
+		{
 			return false;
 		}
+
 		$postdata = $_POST;
 
 		$statusResult = $postdata['payment_status'];
@@ -183,11 +198,13 @@ class Paypal extends AdapterAbstract {
 				'dump'     => serialize($postdata)
 			)
 		);
+
 		return $result;
 	}
 
 	/**
-	 * Get backend posted from server
+	 * Get backend posted from server.
+	 *
 	 * Check transaction from IPN data
 	 *
 	 * @access public
@@ -195,7 +212,7 @@ class Paypal extends AdapterAbstract {
 	 */
 	public function getBackendResult()
 	{
-		if (isset($_POST) && count($_POST) > 0)
+		if (isset($_POST) and count($_POST) > 0)
 		{
 			$postdata = $_POST;
 			$postdata['cmd'] = "_notify-validate";
@@ -203,6 +220,7 @@ class Paypal extends AdapterAbstract {
 			$response = $this->_makeRequest($this->_gatewayUrl, $postdata, array(
 				CURLOPT_CAINFO => "cacert.pem"
 			));
+
 			$status = $response['status'];
 			$body = $response['response'];
 
@@ -225,6 +243,7 @@ class Paypal extends AdapterAbstract {
 						'response_ipn' => $body
 					)
 				);
+
 				return $result;
 			} // end if verified
 
@@ -235,9 +254,8 @@ class Paypal extends AdapterAbstract {
 			'status' => false,
 			'msg'    => "Can not verify IPN"
 		);
+
 		return $result;
 	}
 
 }
-
-?>

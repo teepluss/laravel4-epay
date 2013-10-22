@@ -1,5 +1,7 @@
 <?php namespace Teepluss\Epay\Adapters;
 
+use Teepluss\Epay\EpayException;
+
 class Kbank extends AdapterAbstract {
 
 	/**
@@ -62,7 +64,7 @@ class Kbank extends AdapterAbstract {
 	);
 
 	/**
-	 * Construct the payment adapter
+	 * Construct the payment adapter.
 	 *
 	 * @access public
 	 * @param  array $params (default: array())
@@ -74,7 +76,8 @@ class Kbank extends AdapterAbstract {
 	}
 
 	/**
-	 * Set to enable sandbox mode
+	 * Set to enable sandbox mode.
+	 *
 	 * [NOTICE] Kbank doesn't implement sandbox yet!
 	 *
 	 * @access public
@@ -84,11 +87,13 @@ class Kbank extends AdapterAbstract {
 	public function setSandboxMode($val)
 	{
 		$this->_sandbox = $val;
+
 		return $this;
 	}
 
 	/**
-	 * Get sandbox enable
+	 * Get sandbox enable.
+	 *
 	 * [NOTICE] Kbank doesn't implement sandbox yet!
 	 *
 	 * @access public
@@ -110,6 +115,7 @@ class Kbank extends AdapterAbstract {
 	public function setMethod($val)
 	{
 		$this->_method = $val;
+
 		return $this;
 	}
 
@@ -135,6 +141,7 @@ class Kbank extends AdapterAbstract {
 	public function setMerchantId($val)
 	{
 		$this->_merchantId = $val;
+
 		return $this;
 	}
 
@@ -150,7 +157,8 @@ class Kbank extends AdapterAbstract {
 	}
 
 	/**
-	 * Set gateway terminal
+	 * Set gateway terminal.
+	 *
 	 * Kbank using terms instead of config interface
 	 *
 	 * @access public
@@ -160,6 +168,7 @@ class Kbank extends AdapterAbstract {
 	public function setTerminalId($val)
 	{
 		$this->_terminalId = $val;
+
 		return $this;
 	}
 
@@ -191,7 +200,8 @@ class Kbank extends AdapterAbstract {
 			// Re-format
 			return preg_replace('#^(X|0)+#', '', $invoice);
 		}
-		throw new Payment_Exception('Gateway invoice return from backend posted only.');
+
+		throw new EpayException('Gateway invoice return from backend posted only.');
 	}
 
 	/**
@@ -205,17 +215,20 @@ class Kbank extends AdapterAbstract {
 	{
 		if (parent::isSuccessPosted())
 		{
-			if (isset($_POST) && array_key_exists('HOSTRESP', $_POST))
+			if (isset($_POST) and array_key_exists('HOSTRESP', $_POST))
 			{
 				$statusResult = $_POST['HOSTRESP'];
+
 				return (in_array($statusResult, $this->_success_group));
 			}
 		}
+
 		return false;
 	}
 
 	/**
 	 * State of canceled payment returned.
+	 *
 	 * override from abstract
 	 *
 	 * @access public
@@ -228,9 +241,10 @@ class Kbank extends AdapterAbstract {
 			if (isset($_POST['HOSTRESP']))
 			{
 				$statusResult = $_POST['HOSTRESP'];
-				return (!in_array($statusResult, $this->_success_group));
+				return ( ! in_array($statusResult, $this->_success_group));
 			}
 		}
+
 		return false;
 	}
 
@@ -268,6 +282,7 @@ class Kbank extends AdapterAbstract {
 
 		$params = array_merge($pass_parameters, $extends);
 		$build_data = array_merge($this->_defaults_params, $params);
+
 		return $build_data;
 	}
 
@@ -282,6 +297,7 @@ class Kbank extends AdapterAbstract {
 	{
 		// make webpage language
 		$data = $this->build($attrs);
+
 		return $this->_makeFormPayment($data);
 	}
 
@@ -294,9 +310,11 @@ class Kbank extends AdapterAbstract {
 	 */
 	public function getFrontendResult()
 	{
-		if (count($_POST) == 0 || !array_key_exists('HOSTRESP', $_POST)) {
+		if (count($_POST) == 0 or ! array_key_exists('HOSTRESP', $_POST))
+		{
 			return false;
 		}
+
 		$postdata = $_POST;
 
 		$hostresp = $postdata['HOSTRESP'];
@@ -316,6 +334,7 @@ class Kbank extends AdapterAbstract {
 				'dump'     => serialize($postdata)
 			)
 		);
+
 		return $result;
 	}
 
@@ -329,9 +348,10 @@ class Kbank extends AdapterAbstract {
 	 */
 	public function getBackendResult()
 	{
-		if (isset($_POST) && count($_POST) > 0)
+		if (isset($_POST) and count($_POST) > 0)
 		{
 			$postdata = $_POST;
+
 			if (array_key_exists('PMGWRESP', $postdata))
 			{
 				// mapping variables from data responded
@@ -352,6 +372,7 @@ class Kbank extends AdapterAbstract {
 					'FXRate'        => array(210, 12)
 				);
 				$response = array();
+
 				foreach ($splitters as $var_name => $pos)
 				{
 					$begin = $pos[0] - 1;
@@ -362,7 +383,6 @@ class Kbank extends AdapterAbstract {
 
 					$response[$var_name] = $theValue;
 				}
-
 
 				$statusResult = (in_array($response['ResponseCode'], $this->_success_group)) ? "success" : "pending";
 				$invoice = (int)$response['Invoice'];
@@ -380,6 +400,7 @@ class Kbank extends AdapterAbstract {
 						'dump'     => serialize($response)
 					)
 				);
+
 				return $result;
 			}
 		}
@@ -388,9 +409,8 @@ class Kbank extends AdapterAbstract {
 			'status' => false,
 			'msg'    => "Can not get data feed."
 		);
+
 		return $result;
 	}
 
 }
-
-?>

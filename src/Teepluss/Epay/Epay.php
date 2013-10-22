@@ -5,13 +5,11 @@ use ReflectionClass;
 class Epay {
 
     /**
-     * Factory Instance
+     * Epay instance.
      *
-     * @access public
-     * @static
-     * @param string $adapter
-     * @param array $params (option)
-     * @return object class
+     * @param  string $adapter
+     * @param  array  $arguments
+     * @return object
      */
     public static function factory($adapter, $arguments = array())
     {
@@ -19,6 +17,7 @@ class Epay {
 
         $adapterName = __NAMESPACE__.'\\Adapters\\'.$adapter;
 
+        // Adapter not found.
         if ( ! class_exists($adapterName))
         {
             throw new EpayException('Can\'t load payment adapter "'.$adapterName.'"', 0);

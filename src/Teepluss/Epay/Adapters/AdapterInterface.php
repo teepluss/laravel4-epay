@@ -43,5 +43,3 @@ interface AdapterInterface {
 	public function getBackendResult();
 
 }
-
-?>
