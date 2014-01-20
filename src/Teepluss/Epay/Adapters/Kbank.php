@@ -131,6 +131,28 @@ class Kbank extends AdapterAbstract {
     }
 
     /**
+     * Set account for merchant.
+     *
+     * @param object
+     */
+    public function setMerchantAccount($val)
+    {
+        if (is_array($val))
+        {
+            return parent::setMerchantAccount($val);
+        }
+
+        // Explode from string.
+        list($merchantId, $terminalId) = explode(':', $val);
+
+        $this->setMerchantId($merchantId);
+
+        $this->setTerminalId($terminalId);
+
+        return $this;
+    }
+
+    /**
      * Set gateway merchant
      * Kbank using merchant instead of email
      *

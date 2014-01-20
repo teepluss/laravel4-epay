@@ -158,6 +158,30 @@ class PaysbuyAdvance extends AdapterAbstract {
     }
 
     /**
+     * Set account for merchant.
+     *
+     * @param object
+     */
+    public function setMerchantAccount($val)
+    {
+        if (is_array($val))
+        {
+            return parent::setMerchantAccount($val);
+        }
+
+        // Explode from string.
+        list($merchantId, $username, $secureCode) = explode(':', $val);
+
+        $this->setMerchantId($merchantId);
+
+        $this->setUsername($username);
+
+        $this->setSecureCode($secureCode);
+
+        return $this;
+    }
+
+    /**
      * Set gateway merchant.
      *
      * Paysbuy API using merchant instead of email

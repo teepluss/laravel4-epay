@@ -145,6 +145,23 @@ class Bbl extends AdapterAbstract {
     }
 
     /**
+     * Set account for merchant.
+     *
+     * @param object
+     */
+    public function setMerchantAccount($val)
+    {
+        if (is_array($val))
+        {
+            return parent::setMerchantAccount($val);
+        }
+
+        $this->setMerchantId($val);
+
+        return $this;
+    }
+
+    /**
      * Set gateway merchant.
      *
      * Kbank using merchant instead of email
