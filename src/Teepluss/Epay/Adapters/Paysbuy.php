@@ -280,6 +280,13 @@ class Paysbuy extends AdapterAbstract {
             $this->_method => "true",
             'lang'         => $this->_language_maps[$this->_language],
         );
+
+        // Paysbuy account doesn't need to put anything.
+        if ($this->_method == 'psb')
+        {
+            unset($opts[$this->_method]);
+        }
+
         $query = http_build_query($opts);
 
         $this->_gatewayUrl .= "?".$query;
