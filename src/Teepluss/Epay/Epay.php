@@ -15,7 +15,7 @@ class Epay {
     {
         $adapter = str_replace('_', ' ', $adapter);
         $adapter = ucwords($adapter);
-        $adapter = str_replace(' ', '_', $adapter);
+        $adapter = str_replace(' ', '', $adapter);
 
         $adapterName = __NAMESPACE__.'\\Adapters\\'.$adapter;
 
