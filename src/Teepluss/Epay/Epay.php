@@ -13,7 +13,9 @@ class Epay {
      */
     public static function factory($adapter, $arguments = array())
     {
+        $adapter = str_replace('_', ' ', $adapter);
         $adapter = ucwords($adapter);
+        $adapter = str_replace(' ', '_', $adapter);
 
         $adapterName = __NAMESPACE__.'\\Adapters\\'.$adapter;
 
