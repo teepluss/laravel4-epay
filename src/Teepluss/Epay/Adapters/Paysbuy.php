@@ -91,6 +91,8 @@ class Paysbuy extends AdapterAbstract {
      */
     public function __construct($params=array())
     {
+        die('No-Content');
+
         parent::__construct($params);
     }
 
