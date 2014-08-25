@@ -5,7 +5,7 @@ Epay is payment gateway adapters.
 ### Installation
 
 - [Epay on Packagist](https://packagist.org/packages/teepluss/epay)
-- [Epay on GitHub](https://github.com/teepluss/laravel-epay)
+- [Epay on GitHub](https://github.com/teepluss/laravel4-epay)
 
 To get the lastest version of Theme simply require it in your `composer.json` file.
 
@@ -25,7 +25,7 @@ Once Theme is installed you need to register the service provider with the appli
 )
 ~~~
 
-API also ships with a facade which provides the static syntax for creating collections. You can register the facade in the `aliases` key of your `app/config/app.php` file.
+Epay also ships with a facade which provides the static syntax for creating collections. You can register the facade in the `aliases` key of your `app/config/app.php` file.
 
 ~~~
 'aliases' => array(
