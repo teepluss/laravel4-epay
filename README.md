@@ -7,7 +7,7 @@ Epay is payment gateway adapters.
 - [Epay on Packagist](https://packagist.org/packages/teepluss/epay)
 - [Epay on GitHub](https://github.com/teepluss/laravel4-epay)
 
-To get the lastest version of Theme simply require it in your `composer.json` file.
+To get the lastest version of Epay simply require it in your `composer.json` file.
 
 ~~~
 "teepluss/epay": "dev-master"
