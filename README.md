@@ -1,5 +1,7 @@
 ## Epay for Laravel 4
 
+Epay is deprecated. Please use the [Gateway](https://github.com/teepluss/laravel4-gateway)
+
 Epay is payment gateway adapters.
 
 ### Installation
