@@ -1,6 +1,6 @@
 {
     "name": "teepluss/epay",
-    "description": "Larave epay is payment gateway adapter.",
+    "description": "Laravel epay is payment gateway adapter.",
     "keywords": ["laravel", "laravel4", "gateway", "paypal"],
     "homepage": "https://github.com/teepluss/laravel4-epay",
     "type": "library",
