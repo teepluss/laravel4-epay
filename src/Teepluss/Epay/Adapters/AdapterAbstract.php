@@ -156,6 +156,8 @@ abstract class AdapterAbstract implements AdapterInterface {
                 }
             }
         }
+
+        return $this;
     }
 
     /**
