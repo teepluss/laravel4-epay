@@ -12,7 +12,7 @@ class Kbank extends AdapterAbstract {
     /**
      * Define security hash prefix
      */
-    const HASHSUM = "DEFINE_SECURITY";
+    //const HASHSUM = "";
 
     /**
      * Merchant ID
@@ -23,6 +23,11 @@ class Kbank extends AdapterAbstract {
      * Terminal ID
      */
     private $_terminalId;
+
+    /**
+     * MD5 secret to use on checksum
+     */
+    private $_secret;
 
     /**
      * @var Gateway URL
@@ -47,6 +52,8 @@ class Kbank extends AdapterAbstract {
         'DETAIL2'     => "",
         'INVMERCHANT' => "",
         'FILLSPACE'   => "Y",
+        'SHOPID'      => "",
+        'PAYTERM2'    => "",
         'CHECKSUM'    => ""
     );
 
@@ -143,11 +150,13 @@ class Kbank extends AdapterAbstract {
         }
 
         // Explode from string.
-        list($merchantId, $terminalId) = explode(':', $val);
+        list($merchantId, $terminalId, $secret) = array_pad(explode(':', $val), 3, null);
 
         $this->setMerchantId($merchantId);
 
         $this->setTerminalId($terminalId);
+
+        $this->setSecret($secret);
 
         return $this;
     }
@@ -203,6 +212,28 @@ class Kbank extends AdapterAbstract {
     public function getTerminalId()
     {
         return $this->_terminalId;
+    }
+
+    /**
+     * Set merchant secret
+     *
+     * @param string $val
+     */
+    public function setSecret($val)
+    {
+        $this->_secret = $val;
+
+        return $this;
+    }
+
+    /**
+     * Get merchant secret
+     *
+     * @return string
+     */
+    public function getSecret()
+    {
+        return $this->_secret;
     }
 
     /**
@@ -288,24 +319,46 @@ class Kbank extends AdapterAbstract {
         // get real client IP
         $ip_address = $this->getClientIpAddress();
 
-        $crumbs = md5(self::HASHSUM.$this->_invoice);
         $pass_parameters = array(
             'MERCHANT2'   => $this->_merchantId,
             'TERM2'       => $this->_terminalId,
-            'INVMERCHANT' => $this->_invoice,
-            'DETAIL2'     => $this->_purpose,
             'AMOUNT2'     => $amount,
             'URL2'        => $this->_successUrl,
             'RESPURL'     => $this->_backendUrl,
             'IPCUST2'     => $ip_address,
-            'CHECKSUM'    => $crumbs,
-            'SHOPID'      => $this->_method_maps[$this->_method]
+            'DETAIL2'     => $this->_purpose,
+            'INVMERCHANT' => $this->_invoice,
+            'FILLSPACE'   => "Y",
+            'SHOPID'      => $this->_method_maps[$this->_method],
+            'PAYTERM2'    => ""
         );
 
         $params = array_merge($pass_parameters, $extends);
+
+        // Hash checksum
+        $params['CHECKSUM'] = $this->hashed($params);
+
         $build_data = array_merge($this->_defaults_params, $params);
 
         return $build_data;
+    }
+
+    /**
+     * Hashing checksum
+     *
+     * @param  array $parameters
+     * @return string
+     */
+    private function hashed($parameters)
+    {
+        $crumbs = '';
+
+        foreach ($parameters as $key => $val)
+        {
+            $crumbs .= $val;
+        }
+
+        return md5($crumbs.$this->getSecret());
     }
 
     /**
