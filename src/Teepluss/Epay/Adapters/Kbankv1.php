@@ -2,12 +2,12 @@
 
 use Teepluss\Epay\EpayException;
 
-class Kbank extends AdapterAbstract {
+class Kbankv1 extends AdapterAbstract {
 
     /**
      * Define Gateway name
      */
-    const GATEWAY = "Kbank";
+    const GATEWAY = "Kbankv1";
 
     /**
      * Define security hash prefix
@@ -247,9 +247,9 @@ class Kbank extends AdapterAbstract {
     {
         if (parent::isBackendPosted())
         {
-            $pmgwresp = $_POST['PMGWRESP2'];
+            $pmgwresp = $_POST['PMGWRESP'];
 
-            $invoice = substr($pmgwresp, 32, 12);
+            $invoice = substr($pmgwresp, (57-1), 12);
 
             // Re-format
             return preg_replace('#^(X|0)+#', '', $invoice);
@@ -428,40 +428,31 @@ class Kbank extends AdapterAbstract {
         {
             $postdata = $_POST;
 
-            if (array_key_exists('PMGWRESP2', $postdata))
+            if (array_key_exists('PMGWRESP', $postdata))
             {
                 // mapping variables from data responded
-                $pmgwresp = $postdata['PMGWRESP2'];
+                $pmgwresp = $postdata['PMGWRESP'];
                 $splitters = array(
-                    'TransCode'      => array(4, 1),
-                    'MerchantId'     => array(15, 5),
-                    'TerminalId'     => array(8, 20),
-                    'ShopNo'         => array(2, 28),
-                    'CurrencyCode'   => array(3, 30),
-                    'Invoice'        => array(12, 33),
-                    'Date'           => array(8, 45),
-                    'Time'           => array(6, 53),
-                    'CardNo'         => array(19, 59),
-                    'ExpiredDate'    => array(4, 78),
-                    'Cvv'            => array(4, 82),
-                    'TransAmount'    => array(12, 86),
-                    'ResponseCode'   => array(2, 98),
-                    'ApprovedCode'   => array(6, 100),
-                    'CardType'       => array(3, 106),
-                    'Reference1'     => array(20, 109),
-                    'PlanId'         => array(3, 129),
-                    'PayMonth'       => array(2, 132),
-                    'InterestType'   => array(1, 134),
-                    'InterestRate'   => array(6, 135),
-                    'AmountPerMonth' => array(9, 141),
+                    'ResponseCode'  => array(1, 2),
+                    'Reserved1'     => array(3, 12),
+                    'Authorize'     => array(15, 6),
+                    'Reserved2'     => array(21, 36),
+                    'TransAmount'   => array(83, 12),
+                    'Invoice'       => array(57, 12),
+                    'Timestamp'     => array(69, 14),
+                    'Reserved3'     => array(95, 40),
+                    'CardType'      => array(135, 20),
+                    'Reserved4'     => array(155, 40),
+                    'THBAmount'     => array(195, 12),
+                    'TransCurrency' => array(207, 3),
+                    'FXRate'        => array(210, 12)
                 );
-
                 $response = array();
 
                 foreach ($splitters as $var_name => $pos)
                 {
-                    $begin = $pos[1] - 1;
-                    $ended = $pos[0];
+                    $begin = $pos[0] - 1;
+                    $ended = $pos[1];
 
                     $theValue = substr($pmgwresp, $begin, $ended);
                     $theValue = preg_replace('#^X+|X+$#', '', $theValue);
