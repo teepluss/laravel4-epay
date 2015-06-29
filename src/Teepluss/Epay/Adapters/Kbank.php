@@ -40,6 +40,11 @@ class Kbank extends AdapterAbstract {
     protected $_method = "credit";
 
     /**
+     * @var string installment period
+     */
+    protected $_payterm2 = "";
+
+    /**
      * @var mapping to transfrom parameter from gateway
      */
     protected $_defaults_params = array(
@@ -157,6 +162,20 @@ class Kbank extends AdapterAbstract {
         $this->setTerminalId($terminalId);
 
         $this->setSecret($secret);
+
+        return $this;
+    }
+
+    /**
+     * Set installment
+     *
+     * @param string $val [03, 06, 09 ..... 39]
+     */
+    public function setInstallment($val)
+    {
+        if ($val > 0) {
+            $this->_payterm2 = sprintf('%02d', $val);
+        }
 
         return $this;
     }
@@ -331,7 +350,7 @@ class Kbank extends AdapterAbstract {
             'INVMERCHANT' => $this->_invoice,
             'FILLSPACE'   => "Y",
             'SHOPID'      => $this->_method_maps[$this->_method],
-            'PAYTERM2'    => ""
+            'PAYTERM2'    => $this->_payterm2
         );
 
         $params = array_merge($pass_parameters, $extends);
