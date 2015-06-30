@@ -350,7 +350,7 @@ class Kbank extends AdapterAbstract {
             'INVMERCHANT' => $this->_invoice,
             'FILLSPACE'   => "Y",
             'SHOPID'      => $this->_method_maps[$this->_method],
-            'PAYTERM2'    => $this->_payterm2
+            'PAYTERM2'    => ""
         );
 
         $params = array_merge($pass_parameters, $extends);
